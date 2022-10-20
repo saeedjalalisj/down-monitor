@@ -6,9 +6,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
 	_ "github.com/lib/pq"
 	"github.com/saeedjalalisj/down-monitor/infra/logger"
+	"github.com/saeedjalalisj/down-monitor/infra/web"
 	_serviceHttpDelivery "github.com/saeedjalalisj/down-monitor/internal/service/delivery/http"
 	_serviceRepo "github.com/saeedjalalisj/down-monitor/internal/service/repository/postgres"
 	_serviceUsecase "github.com/saeedjalalisj/down-monitor/internal/service/usecase"
@@ -55,6 +57,10 @@ func run(log *zap.SugaredLogger) error {
 	fmt.Println("Logger program")
 
 	e := echo.New()
+	e.Use(web.ReqID)
+	e.Use(web.Logger(log))
+	e.Use(web.ResponseMiddle)
+	e.Validator = &web.CustomValidator{Validator: validator.New()}
 
 	timeoutContext := time.Duration(10) * time.Second
 

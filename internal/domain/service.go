@@ -8,7 +8,7 @@ import (
 )
 
 type Service struct {
-	ID        uuid.UUID `json:"id"`
+	ID        uuid.UUID `json:"id,omitempty"`
 	Name      string    `json:"name" validate:"required"`
 	Url       string    `json:"url" validate:"required"`
 	Token     string    `json:"token"`
@@ -18,21 +18,20 @@ type Service struct {
 
 type ServiceUsecase interface {
 	Create(ctx context.Context, csd *CreateServiceDto) (uuid.UUID, error)
-	// GenerateToken(ctx context.Context, sID uuid.UUID) string
+	GenerateToken(ctx context.Context, serviceName string) (token string, err error)
 	// Update()
 	// Delete()
 	// GetByIDs()
 }
 
 type ServiceRepository interface {
-	Create(ctx context.Context, csd *CreateServiceDto) (uuid.UUID, error)
-	// GenerateToken(ctx context.Context, sID uuid.UUID) string
+	Create(ctx context.Context, s *Service) (uuid.UUID, error)
 	// Update()
 	// Delete()
 	// GetByIDs()
 }
 
 type CreateServiceDto struct {
-	Name string
-	Url  string
+	Name string `json:"name" validate:"required"`
+	Url  string `json:"url" validate:"required"`
 }

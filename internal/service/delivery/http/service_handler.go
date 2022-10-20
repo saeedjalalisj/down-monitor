@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/saeedjalalisj/down-monitor/infra/web"
 	"github.com/saeedjalalisj/down-monitor/internal/domain"
 )
 
@@ -19,27 +20,45 @@ func NewServiceHandler(e *echo.Echo, su domain.ServiceUsecase) {
 	handler := serviceHandler{
 		SUsecase: su,
 	}
-
 	e.POST("/service", handler.Create)
+
 }
 
 func (h *serviceHandler) Create(c echo.Context) (err error) {
 	var service domain.CreateServiceDto
-
 	err = c.Bind(&service)
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		web.AddResponseToContext(c, web.RespObject{
+			Message: "Error",
+			Data:    err.Error(),
+			Code:    http.StatusUnprocessableEntity,
+		})
+		return nil
 	}
-
-	// var ok bool
-	// if ok, err = isRequestValid(&service); !ok {
-	// 	return c.JSON(http.StatusBadRequest, err.Error())
-	// }
-
+	if err = c.Validate(service); err != nil {
+		web.AddResponseToContext(c, web.RespObject{
+			Message: "Error",
+			Data:    err.Error(),
+			Code:    http.StatusBadRequest,
+		})
+		return nil
+	}
 	ctx := c.Request().Context()
-	_, err = h.SUsecase.Create(ctx, &service)
+	id, err := h.SUsecase.Create(ctx, &service)
 	if err != nil {
-		return c.JSON(404, ResponseError{Message: err.Error()})
+		web.AddResponseToContext(c, web.RespObject{
+			Message: "Error",
+			Data:    err.Error(),
+			Code:    http.StatusBadRequest,
+		})
+		return nil
 	}
-	return c.JSON(http.StatusCreated, service)
+
+	web.AddResponseToContext(c, web.RespObject{
+		Message: "create",
+		Data:    id,
+		Code:    http.StatusOK,
+	})
+
+	return nil
 }
