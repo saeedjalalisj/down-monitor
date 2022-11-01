@@ -12,6 +12,7 @@ type Service struct {
 	Name      string    `json:"name" validate:"required"`
 	Url       string    `json:"url" validate:"required"`
 	Token     string    `json:"token"`
+	IsActive  bool      `json:"isActive" validate:"required"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -19,6 +20,7 @@ type Service struct {
 type ServiceUsecase interface {
 	Create(ctx context.Context, csd *CreateServiceDto) (uuid.UUID, error)
 	GenerateToken(ctx context.Context, serviceName string) (token string, err error)
+	Monitor(ctx context.Context, serviceName string) (err error)
 	// Update()
 	// Delete()
 	// GetByIDs()
@@ -32,6 +34,7 @@ type ServiceRepository interface {
 }
 
 type CreateServiceDto struct {
-	Name string `json:"name" validate:"required"`
-	Url  string `json:"url" validate:"required"`
+	Name     string `json:"name" validate:"required"`
+	Url      string `json:"url" validate:"required"`
+	IsActive bool   `json:"isActive" validate:"required"`
 }

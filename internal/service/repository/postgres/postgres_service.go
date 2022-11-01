@@ -17,8 +17,8 @@ func NewPostgresServiceRepository(conn *sql.DB) domain.ServiceRepository {
 }
 
 func (p *postgresServiceRepository) Create(ctx context.Context, s *domain.Service) (id uuid.UUID, err error) {
-	query := `INSERT INTO "service" (name, url, token) VALUES ($1, $2, $3) RETURNING id;`
-	err = p.Conn.QueryRowContext(ctx, query, s.Name, s.Name, s.Token).Scan(&id)
+	query := `INSERT INTO "service" (name, url, token, isActive) VALUES ($1, $2, $3, $4) RETURNING id;`
+	err = p.Conn.QueryRowContext(ctx, query, s.Name, s.Name, s.Token, s.IsActive).Scan(&id)
 	if err != nil {
 		return id, err
 	}
